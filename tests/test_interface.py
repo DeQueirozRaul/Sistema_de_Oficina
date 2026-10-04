@@ -550,3 +550,10 @@ def test_relatorios_graficos_tabela_dica_e_exportacao(app, janela, monkeypatch, 
     assert (tmp_path / "relatorio.xlsx").stat().st_size > 0
     assert (tmp_path / "relatorio.csv").read_text(encoding="utf-8-sig").count("\n") == 3
     assert sum("Relatório salvo" in m for m in janela.respostas.mensagens) == 2
+
+
+def test_autoteste_verificar_passa_por_todas_as_telas(app, monkeypatch, tmp_path):
+    from oficina.ui import aplicacao
+
+    monkeypatch.setenv("OFICINA_DADOS", str(tmp_path))  # o autoteste troca a pasta de dados; o pytest desfaz
+    assert aplicacao.verificar() == 0
