@@ -14,6 +14,7 @@ def test_notebook_de_analise_executa_sem_erros(monkeypatch):
     matplotlib.use("Agg")  # sem janelas
     import matplotlib.pyplot as plt
 
+    monkeypatch.setattr(plt, "show", lambda *args, **kwargs: None)  # no Jupyter, plt.show() exibe o gráfico
     monkeypatch.chdir(NOTEBOOK.parent)
     celulas = [c for c in json.loads(NOTEBOOK.read_text(encoding="utf-8"))["cells"] if c["cell_type"] == "code"]
     assert celulas
