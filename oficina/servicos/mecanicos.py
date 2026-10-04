@@ -62,11 +62,13 @@ def definir_ativo(conn: sqlite3.Connection, mecanico_id: int, ativo: bool) -> No
 
 
 def possui_os(conn: sqlite3.Connection, mecanico_id: int) -> bool:
-    return conn.execute("SELECT 1 FROM ordens_servico WHERE mecanico_id = ? LIMIT 1", (mecanico_id,)).fetchone() is not None
+    linha = conn.execute("SELECT 1 FROM ordens_servico WHERE mecanico_id = ? LIMIT 1", (mecanico_id,)).fetchone()
+    return linha is not None
 
 
 def excluir(conn: sqlite3.Connection, mecanico_id: int) -> None:
     if possui_os(conn, mecanico_id):
-        raise ErroValidacao("Este mecânico já tem OS registradas e não pode ser excluído. Use \"Desativar\" para que ele não apareça mais nas novas OS.")
+        raise ErroValidacao("Este mecânico já tem OS registradas e não pode ser excluído. "
+                            "Use \"Desativar\" para que ele não apareça mais nas novas OS.")
     with conn:
         conn.execute("DELETE FROM mecanicos WHERE id = ?", (mecanico_id,))

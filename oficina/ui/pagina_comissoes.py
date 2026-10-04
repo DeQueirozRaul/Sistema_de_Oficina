@@ -60,8 +60,9 @@ class PaginaComissoes(Pagina):
 
         grupo = QGroupBox("OS do período")
         grade = QGridLayout(grupo)
-        self.tabela = Tabela(["OS", "Data", "Mecânico", "Veículo", "Cliente", "Mão de obra", "%", "Comissão", "Situação"],
-                             elastica=4, multipla=True)
+        self.tabela = Tabela(
+            ["OS", "Data", "Mecânico", "Veículo", "Cliente", "Mão de obra", "%", "Comissão", "Situação"],
+            elastica=4, multipla=True)
         self.tabela.doubleClicked.connect(lambda _: self._abrir_os())
         self.tabela.itemSelectionChanged.connect(self._selecao_mudou)
         grade.addWidget(self.tabela, 0, 0, 1, 6)
@@ -106,7 +107,8 @@ class PaginaComissoes(Pagina):
 
     def atualizar(self) -> None:
         inicio, fim = self.periodo.periodo()
-        self._linhas = comissoes.listar(self.conn, inicio, fim, self.mecanico.currentData(), self.situacao.currentData())
+        self._linhas = comissoes.listar(self.conn, inicio, fim, self.mecanico.currentData(),
+                                        self.situacao.currentData())
         resumos = comissoes.resumir_por_mecanico(self._linhas)
 
         self.card_mao.definir(formatar_reais(sum(l.mao_de_obra for l in self._linhas)),
@@ -135,7 +137,8 @@ class PaginaComissoes(Pagina):
             linhas.append([
                 celula(l.numero, CENTRO, negrito=True), celula(formatar_data(l.data), CENTRO), l.mecanico_nome,
                 veiculo, l.cliente_nome, celula(formatar_reais(l.mao_de_obra), DIREITA),
-                celula(formatar_percentual(l.percentual), CENTRO), celula(formatar_reais(l.comissao), DIREITA, negrito=True),
+                celula(formatar_percentual(l.percentual), CENTRO),
+                celula(formatar_reais(l.comissao), DIREITA, negrito=True),
                 situacao,
             ])
         self.tabela.definir_linhas(linhas, self._linhas)

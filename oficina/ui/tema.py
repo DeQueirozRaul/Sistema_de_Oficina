@@ -8,7 +8,9 @@ texto (escuro) ficava invisível.
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPalette
 
-from oficina.modelos import STATUS_ABERTA, STATUS_CANCELADA, STATUS_FINALIZADA, TIPO_MAO_DE_OBRA, TIPO_PECA, TIPO_TERCEIROS
+from oficina.modelos import (
+    STATUS_ABERTA, STATUS_CANCELADA, STATUS_FINALIZADA, TIPO_MAO_DE_OBRA, TIPO_PECA, TIPO_TERCEIROS,
+)
 
 AZUL_ESCURO = "#1A365C"
 AZUL_MEDIO = "#2B5088"
@@ -78,7 +80,9 @@ QGroupBox QLabel {{ font-weight: normal; color: {TEXTO}; }}
 #cardValor {{ color: {AZUL_ESCURO}; font-size: 16pt; font-weight: 700; }}
 #cardDetalhe {{ color: {TEXTO_SUAVE}; font-size: 8pt; }}
 #aviso {{ background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; border-radius: 6px; padding: 7px 10px; }}
-#informacao {{ background: #E0ECFA; color: {AZUL_ESCURO}; border: 1px solid #B6CCEA; border-radius: 6px; padding: 7px 10px; }}
+#informacao {{
+    background: #E0ECFA; color: {AZUL_ESCURO}; border: 1px solid #B6CCEA; border-radius: 6px; padding: 7px 10px;
+}}
 #selo {{ border-radius: 10px; padding: 3px 10px; font-weight: 600; }}
 
 /* ---------- campos ---------- */
@@ -91,9 +95,13 @@ QLineEdit:focus, QComboBox:focus, QDateEdit:focus, QSpinBox:focus, QDoubleSpinBo
     border: 1px solid {AZUL_ESCURO};
 }}
 QLineEdit:read-only, QPlainTextEdit:read-only {{ background: {AZUL_CLARO}; }}
-QLineEdit:disabled, QComboBox:disabled, QDateEdit:disabled, QPlainTextEdit:disabled {{ background: {AZUL_CLARO}; color: {TEXTO_SUAVE}; }}
+QLineEdit:disabled, QComboBox:disabled, QDateEdit:disabled, QPlainTextEdit:disabled {{
+    background: {AZUL_CLARO}; color: {TEXTO_SUAVE};
+}}
 QLineEdit#numeroDocumento {{ font-weight: 700; color: {AZUL_ESCURO}; background: {AZUL_CLARO}; }}
-QComboBox QAbstractItemView {{ background: white; border: 1px solid {LINHA}; selection-background-color: #DBEAFE; selection-color: {TEXTO}; }}
+QComboBox QAbstractItemView {{
+    background: white; border: 1px solid {LINHA}; selection-background-color: #DBEAFE; selection-color: {TEXTO};
+}}
 QCheckBox {{ spacing: 6px; }}
 
 /* ---------- botões ---------- */
@@ -103,7 +111,9 @@ QPushButton {{
 QPushButton:hover {{ background: {AZUL_CLARO}; border-color: #94A3B8; }}
 QPushButton:pressed {{ background: #E2E8F0; }}
 QPushButton:disabled {{ color: #94A3B8; background: {AZUL_CLARO}; }}
-QPushButton[primario="true"] {{ background: {AZUL_ESCURO}; color: white; border: 1px solid {AZUL_ESCURO}; font-weight: 600; }}
+QPushButton[primario="true"] {{
+    background: {AZUL_ESCURO}; color: white; border: 1px solid {AZUL_ESCURO}; font-weight: 600;
+}}
 QPushButton[primario="true"]:hover {{ background: {AZUL_MEDIO}; }}
 QPushButton[primario="true"]:disabled {{ background: #94A3B8; border-color: #94A3B8; }}
 QPushButton[perigo="true"] {{ color: #B91C1C; }}

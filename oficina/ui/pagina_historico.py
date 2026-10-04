@@ -9,8 +9,8 @@ from oficina.periodos import formatar_data
 from oficina.servicos import orcamentos, ordens
 from oficina.ui import acoes, tema
 from oficina.ui.componentes import (
-    CENTRO, DIREITA, Pagina, SeletorPeriodo, Tabela, abrir_arquivo, botao, botao_whatsapp, cabecalho, campo_busca, celula,
-    mostrar_erro, perguntar, rotulo,
+    CENTRO, DIREITA, Pagina, SeletorPeriodo, Tabela, abrir_arquivo, botao, botao_whatsapp, cabecalho, campo_busca,
+    celula, mostrar_erro, perguntar, rotulo,
 )
 
 
@@ -46,7 +46,8 @@ class PaginaHistorico(Pagina):
         filtros.addWidget(self.periodo_os)
         layout.addLayout(filtros)
 
-        self.tabela_os = Tabela(["Nº", "Data", "Situação", "Placa", "Modelo", "Cliente", "Mecânico", "Total"], elastica=5)
+        self.tabela_os = Tabela(["Nº", "Data", "Situação", "Placa", "Modelo", "Cliente", "Mecânico", "Total"],
+                                elastica=5)
         self.tabela_os.doubleClicked.connect(lambda _: self._abrir_os())
         self.tabela_os.itemSelectionChanged.connect(self._botoes_os)
         self.tabela_os.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -143,7 +144,8 @@ class PaginaHistorico(Pagina):
             return
         os_ = ordens.carregar(self.conn, r.id)
         if os_.status == STATUS_ABERTA and not perguntar(
-                self, f"A OS {os_.numero} ainda está em aberto. Gerar o PDF mesmo assim?", sim="Gerar PDF", nao="Voltar"):
+                self, f"A OS {os_.numero} ainda está em aberto. Gerar o PDF mesmo assim?",
+                sim="Gerar PDF", nao="Voltar"):
             return
         acoes.gerar_pdf_os(self.janela, os_, lambda ok, msg: self._pdf_gerado(f"OS {os_.numero}", ok, msg))
 
@@ -161,7 +163,8 @@ class PaginaHistorico(Pagina):
             return
         if self.janela.os_em_edicao() == r.id and not self.janela.pagina_os.pode_descartar():
             return
-        texto = f"Cancelar a OS {r.numero} ({r.placa} - {r.cliente_nome})?\n\nEla deixa de contar no faturamento e na comissão."
+        texto = (f"Cancelar a OS {r.numero} ({r.placa} - {r.cliente_nome})?\n\n"
+                 "Ela deixa de contar no faturamento e na comissão.")
         if r.comissao_paga:
             texto += f"\n\nAtenção: a comissão desta OS ({formatar_reais(r.comissao)}) já foi paga ao mecânico."
         if not perguntar(self, texto, sim="Cancelar OS", nao="Voltar"):
@@ -176,7 +179,8 @@ class PaginaHistorico(Pagina):
         if r is None:
             return
         if not perguntar(self, f"Reativar a OS {r.numero}?\n\nEla volta a ficar \"Em aberto\". Confira os dados e "
-                               "finalize novamente para contar no faturamento e na comissão.", sim="Reativar", nao="Voltar"):
+                               "finalize novamente para contar no faturamento e na comissão.",
+                         sim="Reativar", nao="Voltar"):
             return
         ordens.reativar(self.conn, r.id)
         self.janela.recarregar_os_em_edicao(r.id)

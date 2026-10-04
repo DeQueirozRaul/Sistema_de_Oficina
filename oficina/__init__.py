@@ -1,3 +1,3 @@
-"""Sistema de gestão da oficina: OS, orçamentos, clientes e comissões."""
+"""Sistema de gestão de oficina: OS, orçamentos, clientes, comissões e relatórios."""
 
-VERSAO = "2.0.0"
+VERSAO = "2.1.0"

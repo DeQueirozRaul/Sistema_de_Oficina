@@ -53,8 +53,8 @@ def salvar(conn: sqlite3.Connection, orcamento: Orcamento) -> Orcamento:
         conn.executemany(
             "INSERT INTO itens_orcamento (orcamento_id, posicao, descricao, tipo, quantidade, valor_unitario, total)"
             " VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [(orcamento_id, posicao, item.descricao.strip(), item.tipo, item.quantidade, item.valor_unitario, item.total)
-             for posicao, item in enumerate(orcamento.itens, start=1)],
+            [(orcamento_id, posicao, item.descricao.strip(), item.tipo, item.quantidade, item.valor_unitario,
+              item.total) for posicao, item in enumerate(orcamento.itens, start=1)],
         )
         catalogo.registrar_itens(conn, orcamento.itens, orcamento.data)
 
@@ -131,7 +131,8 @@ def buscar(conn: sqlite3.Connection, busca: str = "", inicio: date | None = None
     return [
         ResumoOrcamento(
             id=linha["id"], numero=linha["numero"], data=para_data(linha["data"]), placa=linha["placa"],
-            modelo=linha["modelo"], total=linha["total"], caminho_pdf=linha["caminho_pdf"], os_numero=linha["os_numero"],
+            modelo=linha["modelo"], total=linha["total"], caminho_pdf=linha["caminho_pdf"],
+            os_numero=linha["os_numero"],
         )
         for linha in conn.execute(sql, parametros)
     ]

@@ -302,7 +302,8 @@ class CampoData(QDateEdit):
 
 # ---------------------------------------------------------------- tabela
 
-def celula(texto, alinhamento=None, cores: tuple[str, str] | None = None, negrito=False, dica: str = "") -> QTableWidgetItem:
+def celula(texto, alinhamento=None, cores: tuple[str, str] | None = None, negrito=False,
+           dica: str = "") -> QTableWidgetItem:
     item = QTableWidgetItem("" if texto is None else str(texto))
     if alinhamento is not None:
         item.setTextAlignment(alinhamento)
@@ -404,7 +405,8 @@ class SeletorPeriodo(QWidget):
         for campo in (self.de, self.ate):
             campo.dateChanged.connect(lambda _: self.alterado.emit())
 
-        for widget in (self.combo, self.anterior, self.descricao, self.proximo, self.hoje, self.de, self.rotulo_ate, self.ate):
+        for widget in (self.combo, self.anterior, self.descricao, self.proximo, self.hoje, self.de, self.rotulo_ate,
+                       self.ate):
             layout.addWidget(widget)
         self._atualizar()
 
@@ -509,7 +511,8 @@ def perguntar(parent, texto: str, titulo: str = "Confirmar", sim: str = "Sim", n
     return caixa.clickedButton() is botao_sim
 
 
-def escolher(parent, texto: str, opcoes: list[str], titulo: str = "Sistema de Oficina", icone=QMessageBox.Icon.Information) -> int | None:
+def escolher(parent, texto: str, opcoes: list[str], titulo: str = "Sistema de Oficina",
+             icone=QMessageBox.Icon.Information) -> int | None:
     """Mostra uma mensagem com vários botões e devolve o índice do escolhido."""
     caixa = _caixa(parent, icone, titulo, texto)
     botoes = [caixa.addButton(opcao, QMessageBox.ButtonRole.AcceptRole) for opcao in opcoes]

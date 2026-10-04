@@ -9,7 +9,10 @@ from oficina.servicos import comissoes, mecanicos, ordens, painel
 def _cenario(conn, mecanico):
     """Marcos (30%) e Bruno (20%) com OS em datas diferentes."""
     bruno_id = mecanicos.salvar(conn, Mecanico(nome="Bruno", percentual_comissao=20))
-    mao = lambda valor: [item("Peça", "peca", 1, 50000), item("Serviço", "mao_de_obra", 1, valor)]
+
+    def mao(valor):
+        return [item("Peça", "peca", 1, 50000), item("Serviço", "mao_de_obra", 1, valor)]
+
     ordens.salvar(conn, nova_os(mecanico.id, data=date(2026, 9, 22), itens=mao(10000)), "finalizada")  # seg
     ordens.salvar(conn, nova_os(mecanico.id, data=date(2026, 9, 26), itens=mao(20000)), "finalizada")  # sex
     ordens.salvar(conn, nova_os(bruno_id, data=date(2026, 9, 23), itens=mao(30000)), "finalizada")
@@ -17,7 +20,8 @@ def _cenario(conn, mecanico):
     ordens.salvar(conn, nova_os(mecanico.id, data=date(2026, 9, 24), itens=mao(99900)), "aberta")  # não conta
     cancelada = ordens.salvar(conn, nova_os(mecanico.id, data=date(2026, 9, 24), itens=mao(88800)), "finalizada")
     ordens.cancelar(conn, cancelada.id)  # não conta
-    ordens.salvar(conn, nova_os(mecanico.id, data=date(2026, 9, 25), itens=[item("Só peça", "peca", 1, 100)]), "finalizada")
+    so_peca = [item("Só peça", "peca", 1, 100)]
+    ordens.salvar(conn, nova_os(mecanico.id, data=date(2026, 9, 25), itens=so_peca), "finalizada")
     return bruno_id
 
 

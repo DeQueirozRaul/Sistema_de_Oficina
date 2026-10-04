@@ -15,8 +15,8 @@ from oficina.servicos import backup, catalogo, numeracao
 from oficina.servicos import configuracoes as cfg
 from oficina.ui import acoes, logo, tema
 from oficina.ui.componentes import (
-    CENTRO, DIREITA, CampoDocumento, CampoTelefone, Pagina, Tabela, abrir_arquivo, avisar, botao, cabecalho, campo_busca, celula,
-    com_rolagem, mostrar_erro, perguntar, rotulo,
+    CENTRO, DIREITA, CampoDocumento, CampoTelefone, Pagina, Tabela, abrir_arquivo, avisar, botao, cabecalho,
+    campo_busca, celula, com_rolagem, mostrar_erro, perguntar, rotulo,
 )
 from oficina.ui.dialogos import DialogoItemCatalogo
 
@@ -226,7 +226,8 @@ class PaginaConfiguracoes(Pagina):
                 cfg.definir(self.conn, cfg.MOSTRAR_CONTATO_NA_NOTA, "1" if self.mostrar_contato.isChecked() else "0")
                 cfg.definir(self.conn, cfg.MOSTRAR_LOGO_NA_NOTA, "1" if self.mostrar_logo.isChecked() else "0")
                 numeracao.definir_proximo_numero(self.conn, cfg.PROXIMO_NUMERO_OS, self.proxima_os.value())
-                numeracao.definir_proximo_numero(self.conn, cfg.PROXIMO_NUMERO_ORCAMENTO, self.proximo_orcamento.value())
+                numeracao.definir_proximo_numero(self.conn, cfg.PROXIMO_NUMERO_ORCAMENTO,
+                                                 self.proximo_orcamento.value())
                 cfg.definir(self.conn, cfg.PASTA_OS, self.pasta_os.campo.text().strip())
                 cfg.definir(self.conn, cfg.PASTA_ORCAMENTOS, self.pasta_orcamentos.campo.text().strip())
                 cfg.definir(self.conn, cfg.PASTA_BACKUPS, self.pasta_backups.campo.text().strip())

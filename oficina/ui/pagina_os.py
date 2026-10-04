@@ -402,7 +402,8 @@ class PaginaOS(Pagina):
         cliente = clientes.obter_cliente(self.conn, veiculo.cliente_id) if veiculo.cliente_id else None
         pode_trocar_cliente = not self.cliente.text().strip() or self.cliente in self._auto_preenchidos
         if cliente is not None and pode_trocar_cliente:
-            valores += [(self.cliente, cliente.nome), (self.documento, cliente.documento), (self.telefone, cliente.telefone)]
+            valores += [(self.cliente, cliente.nome), (self.documento, cliente.documento),
+                        (self.telefone, cliente.telefone)]
             self._cliente_id = cliente.id
         for campo, valor in valores:
             if valor and (not campo.text().strip() or campo in self._auto_preenchidos):
@@ -534,7 +535,8 @@ class PaginaOS(Pagina):
             self._os.caminho_pdf = mensagem
         self._definir_botoes_habilitados(True)
         if not sucesso:
-            mostrar_erro(self, f"A OS {os_.numero} foi salva, mas o PDF não foi gerado.\n\n{mensagem}\n\n{acoes.DICA_ERRO_PDF}")
+            mostrar_erro(self, f"A OS {os_.numero} foi salva, mas o PDF não foi gerado.\n\n{mensagem}"
+                               f"\n\n{acoes.DICA_ERRO_PDF}")
             return
         self.janela.mensagem(f"OS {os_.numero} finalizada. PDF salvo em {mensagem}")
         if acoes.envio_automatico_ativo(self.conn, os_.cliente_telefone):

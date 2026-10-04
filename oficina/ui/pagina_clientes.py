@@ -13,8 +13,9 @@ class PaginaClientes(Pagina):
         super().__init__(janela)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 16, 20, 12)
-        layout.addLayout(cabecalho("Clientes e veículos",
-                                   "Os cadastros são criados automaticamente ao salvar uma OS. Aqui você pode corrigir ou completar."))
+        layout.addLayout(cabecalho(
+            "Clientes e veículos",
+            "Os cadastros são criados automaticamente ao salvar uma OS. Aqui você pode corrigir ou completar."))
         self.abas = QTabWidget()
         self.abas.addTab(self._montar_aba_clientes(), "Clientes")
         self.abas.addTab(self._montar_aba_veiculos(), "Veículos")
@@ -108,7 +109,9 @@ class PaginaClientes(Pagina):
 
     def _editar_cliente(self) -> None:
         cliente_id = self.tabela_clientes.dado_selecionado()
-        if cliente_id is not None and DialogoCliente(self, self.conn, clientes.obter_cliente(self.conn, cliente_id)).exec():
+        if cliente_id is None:
+            return
+        if DialogoCliente(self, self.conn, clientes.obter_cliente(self.conn, cliente_id)).exec():
             self._atualizar_clientes()
 
     def _excluir_cliente(self) -> None:
@@ -168,7 +171,9 @@ class PaginaClientes(Pagina):
 
     def _editar_veiculo(self, tabela: Tabela) -> None:
         veiculo_id = tabela.dado_selecionado()
-        if veiculo_id is not None and DialogoVeiculo(self, self.conn, clientes.obter_veiculo(self.conn, veiculo_id)).exec():
+        if veiculo_id is None:
+            return
+        if DialogoVeiculo(self, self.conn, clientes.obter_veiculo(self.conn, veiculo_id)).exec():
             self.ao_exibir()
 
     def _excluir_veiculo(self) -> None:

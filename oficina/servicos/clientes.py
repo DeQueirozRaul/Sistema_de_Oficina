@@ -52,7 +52,8 @@ def listar_clientes(conn: sqlite3.Connection, busca: str = "") -> list[tuple[Cli
 
 
 def nomes_clientes(conn: sqlite3.Connection) -> list[tuple[int, str]]:
-    return [(linha["id"], linha["nome"]) for linha in conn.execute("SELECT id, nome FROM clientes ORDER BY nome COLLATE NOCASE")]
+    linhas = conn.execute("SELECT id, nome FROM clientes ORDER BY nome COLLATE NOCASE")
+    return [(linha["id"], linha["nome"]) for linha in linhas]
 
 
 def salvar_cliente(conn: sqlite3.Connection, cliente: Cliente) -> int:
@@ -77,7 +78,8 @@ def excluir_cliente(conn: sqlite3.Connection, cliente_id: int) -> None:
         conn.execute("DELETE FROM clientes WHERE id = ?", (cliente_id,))
 
 
-def registrar_cliente(conn: sqlite3.Connection, cliente_id: int | None, nome: str, documento: str, telefone: str) -> int | None:
+def registrar_cliente(conn: sqlite3.Connection, cliente_id: int | None, nome: str, documento: str,
+                      telefone: str) -> int | None:
     """Cria ou atualiza o cliente usado numa OS (não faz commit).
 
     Ordem de identificação: cliente escolhido na tela -> mesmo CPF/CNPJ ->
@@ -183,11 +185,13 @@ def salvar_veiculo(conn: sqlite3.Connection, veiculo: Veiculo) -> int:
     with conn:
         if veiculo.id is None:
             return conn.execute(
-                "INSERT INTO veiculos (placa, placa_normalizada, modelo, ano, ultimo_km, cliente_id) VALUES (?, ?, ?, ?, ?, ?)",
+                "INSERT INTO veiculos (placa, placa_normalizada, modelo, ano, ultimo_km, cliente_id)"
+                " VALUES (?, ?, ?, ?, ?, ?)",
                 valores,
             ).lastrowid
         conn.execute(
-            "UPDATE veiculos SET placa = ?, placa_normalizada = ?, modelo = ?, ano = ?, ultimo_km = ?, cliente_id = ? WHERE id = ?",
+            "UPDATE veiculos SET placa = ?, placa_normalizada = ?, modelo = ?, ano = ?, ultimo_km = ?, cliente_id = ?"
+            " WHERE id = ?",
             (*valores, veiculo.id),
         )
         return veiculo.id
@@ -211,7 +215,8 @@ def registrar_veiculo(conn: sqlite3.Connection, placa: str, modelo: str = "", an
     existente = conn.execute("SELECT id FROM veiculos WHERE placa_normalizada = ?", (normalizada,)).fetchone()
     if existente is None:
         return conn.execute(
-            "INSERT INTO veiculos (placa, placa_normalizada, modelo, ano, ultimo_km, cliente_id) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO veiculos (placa, placa_normalizada, modelo, ano, ultimo_km, cliente_id)"
+            " VALUES (?, ?, ?, ?, ?, ?)",
             (placa, normalizada, modelo, ano, km, cliente_id),
         ).lastrowid
     conn.execute(

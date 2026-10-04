@@ -47,7 +47,8 @@ class PaginaInicio(Pagina):
         self.card_pecas = Card("Peças")
         self.card_os = Card("OS finalizadas")
         self.card_comissao = Card("Comissões do período")
-        for coluna, card in enumerate((self.card_faturamento, self.card_mao, self.card_pecas, self.card_os, self.card_comissao)):
+        todos = (self.card_faturamento, self.card_mao, self.card_pecas, self.card_os, self.card_comissao)
+        for coluna, card in enumerate(todos):
             cards.addWidget(card, 0, coluna)
         layout.addLayout(cards)
 
@@ -78,7 +79,8 @@ class PaginaInicio(Pagina):
 
         grupo_ultimas = QGroupBox("Últimas OS")
         caixa = QVBoxLayout(grupo_ultimas)
-        self.tabela_ultimas = Tabela(["Nº", "Data", "Situação", "Placa", "Modelo", "Cliente", "Mecânico", "Total"], elastica=5)
+        self.tabela_ultimas = Tabela(["Nº", "Data", "Situação", "Placa", "Modelo", "Cliente", "Mecânico", "Total"],
+                                     elastica=5)
         self.tabela_ultimas.doubleClicked.connect(lambda _: self._abrir_os(self.tabela_ultimas))
         caixa.addWidget(self.tabela_ultimas, 1)
         layout.addWidget(grupo_ultimas, 1)

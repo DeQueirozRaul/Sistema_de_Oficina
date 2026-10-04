@@ -48,7 +48,8 @@ class EditorItens(QWidget):
         self.tipo = QComboBox()
         for chave, nome in TIPOS_ITEM.items():
             self.tipo.addItem(nome, chave)
-            self.tipo.setItemData(self.tipo.count() - 1, QColor(tema.CORES_TIPO[chave][0]), Qt.ItemDataRole.ForegroundRole)
+            self.tipo.setItemData(self.tipo.count() - 1, QColor(tema.CORES_TIPO[chave][0]),
+                                  Qt.ItemDataRole.ForegroundRole)
         self.tipo.setPlaceholderText("Escolha o tipo...")
         self.tipo.setCurrentIndex(-1)
         self.tipo.setMinimumWidth(170)

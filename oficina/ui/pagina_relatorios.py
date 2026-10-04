@@ -97,7 +97,8 @@ class PaginaRelatorios(Pagina):
         layout.addLayout(cards)
 
         self.bloco_faturamento = Bloco(
-            "Faturamento por mês", "Soma dos itens, antes dos descontos. Passe o mouse sobre uma coluna para ver os valores.",
+            "Faturamento por mês",
+            "Soma dos itens, antes dos descontos. Passe o mouse sobre uma coluna para ver os valores.",
             GraficoColunas(), ["Período", "OS", "Mão de obra", "Peças", "Terceirizados", "Descontos", "Total",
                                "Ticket médio"])
         layout.addWidget(self.bloco_faturamento)
@@ -162,7 +163,7 @@ class PaginaRelatorios(Pagina):
         dicas = []
         for f in fatias:
             linhas = [f"<b>{f.titulo}</b>", f"{f.quantidade_os} OS finalizada{'s' if f.quantidade_os != 1 else ''}"]
-            for serie, valor in zip(SERIES_TIPO, (f.mao_de_obra, f.pecas, f.terceiros)):
+            for serie, valor in zip(SERIES_TIPO, (f.mao_de_obra, f.pecas, f.terceiros), strict=True):
                 linhas.append(f"{_quadrado(serie.cor)} {serie.nome}: {formatar_reais(valor)}")
             if f.descontos:
                 linhas.append(f"Descontos: −{formatar_reais(f.descontos)}")
@@ -205,8 +206,9 @@ class PaginaRelatorios(Pagina):
                   f"<br>Comissão: {formatar_reais(m.comissao)}")
             for m in desempenho])
         self.bloco_mecanicos.tabela.definir_linhas([
-            [celula(m.nome, negrito=True), celula(m.quantidade_os, CENTRO), celula(formatar_reais(m.mao_de_obra), DIREITA),
-             celula(formatar_reais(m.ticket_medio), DIREITA), celula(formatar_reais(m.comissao), DIREITA)]
+            [celula(m.nome, negrito=True), celula(m.quantidade_os, CENTRO),
+             celula(formatar_reais(m.mao_de_obra), DIREITA), celula(formatar_reais(m.ticket_medio), DIREITA),
+             celula(formatar_reais(m.comissao), DIREITA)]
             for m in desempenho])
 
     def _atualizar_dias(self, inicio, fim) -> None:
@@ -218,8 +220,8 @@ class PaginaRelatorios(Pagina):
                   f"<br>Ticket médio: {formatar_reais(ticket(d))}")
             for d in dias])
         self.bloco_dias.tabela.definir_linhas([
-            [celula(d.nome, negrito=True), celula(d.quantidade_os, CENTRO), celula(formatar_reais(d.faturamento), DIREITA),
-             celula(formatar_reais(ticket(d)), DIREITA)]
+            [celula(d.nome, negrito=True), celula(d.quantidade_os, CENTRO),
+             celula(formatar_reais(d.faturamento), DIREITA), celula(formatar_reais(ticket(d)), DIREITA)]
             for d in dias])
 
     # ------------------------------------------------------------ exportação

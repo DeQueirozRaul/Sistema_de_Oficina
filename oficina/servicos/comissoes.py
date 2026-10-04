@@ -103,7 +103,8 @@ def marcar_como_pagas(conn: sqlite3.Connection, os_ids: list[int], data_pagament
 def desfazer_pagamento(conn: sqlite3.Connection, os_ids: list[int]) -> int:
     with conn:
         cursor = conn.executemany(
-            "UPDATE ordens_servico SET comissao_paga = 0, data_pagamento_comissao = NULL WHERE id = ? AND comissao_paga = 1",
+            "UPDATE ordens_servico SET comissao_paga = 0, data_pagamento_comissao = NULL"
+            " WHERE id = ? AND comissao_paga = 1",
             [(os_id,) for os_id in os_ids],
         )
         return cursor.rowcount

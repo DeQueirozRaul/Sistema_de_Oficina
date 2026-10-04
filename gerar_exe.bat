@@ -1,11 +1,12 @@
 @echo off
 chcp 65001 > nul
 REM ==========================================================
-REM  Gera o executavel do Sistema da Oficina (Windows)
+REM  Gera o executavel do Sistema de Oficina (Windows)
 REM  Resultado: dist\SistemaOficina\SistemaOficina.exe
 REM
-REM  Rode no SEU computador. O notebook da loja nao precisa de
-REM  Python: basta copiar para ele a pasta dist\SistemaOficina.
+REM  O computador da oficina nao precisa de Python: basta copiar
+REM  para ele a pasta dist\SistemaOficina.
+REM  (Ou baixe o .zip pronto na pagina de Releases do GitHub.)
 REM ==========================================================
 cd /d "%~dp0"
 
@@ -47,8 +48,8 @@ echo [4/4] Gerando o executavel...
     main.py || goto erro
 
 echo.
-echo Pronto! Copie a pasta dist\SistemaOficina inteira para o notebook da loja
-echo e crie um atalho na area de trabalho para SistemaOficina.exe
+echo Pronto! Copie a pasta dist\SistemaOficina inteira para o computador da
+echo oficina e crie um atalho na area de trabalho para SistemaOficina.exe
 echo (os dados ficam em Documentos\Sistema Oficina e nao sao afetados).
 pause
 exit /b 0

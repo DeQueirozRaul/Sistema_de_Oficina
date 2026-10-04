@@ -126,7 +126,8 @@ def _itens_e_totais(nota: Nota, itens: list[Item], desconto: int, observacoes: s
     nota.linha(Celula(0, "Descrição de Peças e Serviços", ROTULO_CENTRO, 3), Celula(3, "Qtd", ROTULO_CENTRO),
                Celula(4, "Vlr. Unit", ROTULO_CENTRO), Celula(5, "Total", ROTULO_CENTRO))
     for item in itens:
-        nota.linha(Celula(0, item.descricao, DESCRICAO, 3), Celula(3, formatar_quantidade(item.quantidade), VALOR_CENTRO),
+        nota.linha(Celula(0, item.descricao, DESCRICAO, 3),
+                   Celula(3, formatar_quantidade(item.quantidade), VALOR_CENTRO),
                    Celula(4, formatar_reais(item.valor_unitario), VALOR_DIREITA),
                    Celula(5, formatar_reais(item.total), VALOR_DIREITA))
     subtotal = sum(item.total for item in itens)
@@ -144,8 +145,8 @@ def _data(dia: date) -> str:
 
 
 def montar_os(os_: OrdemServico, oficina: dict, logo: QImage | None = None) -> Nota:
-    nota = Nota(Cabecalho(f"ORDEM DE SERVIÇO - {oficina.get('nome', '')}".rstrip(" -"), _linhas_cabecalho(oficina), logo),
-                titulo_documento=f"OS {os_.numero}")
+    titulo = f"ORDEM DE SERVIÇO - {oficina.get('nome', '')}".rstrip(" -")
+    nota = Nota(Cabecalho(titulo, _linhas_cabecalho(oficina), logo), titulo_documento=f"OS {os_.numero}")
     nota.linha(Celula(0, "OS Nº:", ROTULO), Celula(1, str(os_.numero), VALOR, 3),
                Celula(4, "Data:", ROTULO), Celula(5, _data(os_.data)))
     nota.linha(Celula(0, "Mecânico:", ROTULO), Celula(1, os_.mecanico_nome, VALOR, 5))
@@ -315,7 +316,7 @@ def desenhar(nota: Nota, dispositivo, nova_pagina=None) -> int:
             y = MARGEM_VERTICAL
             if not bloco[0].celulas:  # não começa a página nova com um espaço em branco
                 continue
-        for linha, altura in zip(bloco, alturas):
+        for linha, altura in zip(bloco, alturas, strict=True):
             for celula in linha.celulas:
                 p.celula(celula, y, altura)
             y += altura

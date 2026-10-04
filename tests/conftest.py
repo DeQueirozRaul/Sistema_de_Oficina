@@ -55,10 +55,10 @@ def app():
     segundo plano são aguardadas. Sem isso, no Windows o Python podia encerrar
     com erro depois dos testes passarem (o Qt sendo destruído fora de ordem).
     """
-    QtWidgets = pytest.importorskip("PySide6.QtWidgets")
+    qt_widgets = pytest.importorskip("PySide6.QtWidgets")
     from PySide6.QtCore import QThreadPool
 
-    aplicacao = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+    aplicacao = qt_widgets.QApplication.instance() or qt_widgets.QApplication([])
     yield aplicacao
     QThreadPool.globalInstance().waitForDone(5000)
     for janela in aplicacao.topLevelWidgets():

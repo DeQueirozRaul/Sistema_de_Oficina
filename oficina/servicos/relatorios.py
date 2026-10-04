@@ -128,7 +128,8 @@ def _proxima(inicio: date, agrupamento: str) -> date:
 def _nova_fatia(chave: date, agrupamento: str, limite_inicio: date, limite_fim: date) -> Fatia:
     """Fatia que começa em `chave`, cortada nos limites do período (ex.: a 1ª semana de um mês)."""
     if agrupamento == DIA:
-        return Fatia(chave, chave, chave.strftime("%d/%m"), f"{DIAS_DA_SEMANA[chave.weekday()]}, {formatar_data(chave)}")
+        titulo = f"{DIAS_DA_SEMANA[chave.weekday()]}, {formatar_data(chave)}"
+        return Fatia(chave, chave, chave.strftime("%d/%m"), titulo)
     if agrupamento == SEMANA:
         inicio, fim = max(chave, limite_inicio), min(chave + timedelta(days=6), limite_fim)
         return Fatia(inicio, fim, inicio.strftime("%d/%m"), f"Semana de {inicio:%d/%m} a {formatar_data(fim)}")
@@ -274,7 +275,7 @@ def exportar_csv(conn: sqlite3.Connection, inicio: date, fim: date, caminho: str
             escritor.writerow([
                 formatar_reais(valor, simbolo=False).replace(".", "") if nome in _COLUNAS_OS_EM_REAIS
                 else formatar_data(valor) if isinstance(valor, date) else valor
-                for nome, valor in zip(COLUNAS_OS, linha)
+                for nome, valor in zip(COLUNAS_OS, linha, strict=True)
             ])
     return caminho
 
@@ -298,7 +299,7 @@ def exportar_excel(conn: sqlite3.Connection, inicio: date, fim: date, caminho: s
             celula.alignment = Alignment(horizontal="center", vertical="center")
         for linha in linhas:
             aba.append([valor / 100 if nome in em_reais and isinstance(valor, int) else valor
-                        for nome, valor in zip(colunas, linha)])
+                        for nome, valor in zip(colunas, linha, strict=True)])
         for indice, nome in enumerate(colunas, start=1):
             letra = get_column_letter(indice)
             aba.column_dimensions[letra].width = (larguras or {}).get(nome, max(12, len(nome) + 4))

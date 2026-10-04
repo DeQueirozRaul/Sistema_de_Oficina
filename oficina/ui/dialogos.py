@@ -136,7 +136,8 @@ class DialogoVeiculo(_DialogoBase):
     def salvar(self) -> None:
         indice = self.cliente.findText(self.cliente.currentText(), Qt.MatchFlag.MatchExactly)
         if indice < 0:
-            raise ErroValidacao("Escolha um cliente da lista (ou \"(sem cliente)\"). Para um cliente novo, cadastre-o antes.")
+            raise ErroValidacao("Escolha um cliente da lista (ou \"(sem cliente)\"). "
+                                "Para um cliente novo, cadastre-o antes.")
         self.veiculo.placa = self.placa.text()
         self.veiculo.modelo = self.modelo.text()
         self.veiculo.ano = self.ano.text()

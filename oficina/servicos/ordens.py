@@ -31,7 +31,8 @@ def _validar(os_: OrdemServico, status: str) -> None:
         raise ErroValidacao("Preencha pelo menos a placa, o cliente ou um item antes de salvar.")
 
 
-def percentual_para(os_anterior: OrdemServico | None, mecanico_id: int | None, percentual_atual_mecanico: float) -> float:
+def percentual_para(os_anterior: OrdemServico | None, mecanico_id: int | None,
+                    percentual_atual_mecanico: float) -> float:
     """Percentual de comissão a gravar na OS.
 
     Depois que a OS é finalizada o percentual fica congelado: se o cadastro do
@@ -112,7 +113,8 @@ def salvar(conn: sqlite3.Connection, os_: OrdemServico, status: str) -> OrdemSer
             conn.execute("DELETE FROM itens_os WHERE os_id = ?", (os_id,))
 
         conn.executemany(
-            "INSERT INTO itens_os (os_id, posicao, descricao, tipo, quantidade, valor_unitario, total) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO itens_os (os_id, posicao, descricao, tipo, quantidade, valor_unitario, total)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?)",
             [(os_id, posicao, item.descricao.strip(), item.tipo, item.quantidade, item.valor_unitario, item.total)
              for posicao, item in enumerate(os_.itens, start=1)],
         )

@@ -3,7 +3,9 @@
 from datetime import date
 
 from PySide6.QtCore import QStringListModel, Qt
-from PySide6.QtWidgets import QCompleter, QGridLayout, QGroupBox, QHBoxLayout, QLineEdit, QPlainTextEdit, QVBoxLayout, QWidget
+from PySide6.QtWidgets import (
+    QCompleter, QGridLayout, QGroupBox, QHBoxLayout, QLineEdit, QPlainTextEdit, QVBoxLayout, QWidget,
+)
 
 from oficina.modelos import ErroValidacao, Orcamento, calcular_totais
 from oficina.servicos import clientes, orcamentos, ordens

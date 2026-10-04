@@ -528,8 +528,9 @@ def test_relatorios_graficos_tabela_dica_e_exportacao(app, janela, monkeypatch, 
     # Passar o mouse sobre a última coluna (o mês atual) destaca a coluna e mostra os valores dela.
     area = grafico._area
     ponto = QPointF(area.right() - grafico._banda / 2, area.center().y())
-    app.sendEvent(grafico, QMouseEvent(QEvent.Type.MouseMove, ponto, grafico.mapToGlobal(ponto),
-                                       Qt.MouseButton.NoButton, Qt.MouseButton.NoButton, Qt.KeyboardModifier.NoModifier))
+    movimento = QMouseEvent(QEvent.Type.MouseMove, ponto, grafico.mapToGlobal(ponto), Qt.MouseButton.NoButton,
+                            Qt.MouseButton.NoButton, Qt.KeyboardModifier.NoModifier)
+    app.sendEvent(grafico, movimento)
     assert grafico.destaque == 11
     assert "R$ 800,00" in grafico._dicas[11] and "2 OS" in grafico._dicas[11]
 

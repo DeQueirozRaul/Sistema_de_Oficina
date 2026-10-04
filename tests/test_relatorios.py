@@ -16,9 +16,10 @@ def _os(conn, mecanico_id, dia, itens, status="finalizada", **campos):
 def cenario(conn, mecanico):
     """Marcos (30%) e um sócio (0%) com OS em setembro e outubro de 2026."""
     socio_id = mecanicos.salvar(conn, Mecanico(nome="Sócio", percentual_comissao=0))
-    _os(conn, mecanico.id, date(2026, 9, 1), [item("Amortecedor", "peca", 2, 20000), item("Troca", "mao_de_obra", 1, 10000)],
-        desconto=5000)
-    _os(conn, mecanico.id, date(2026, 9, 15), [item("amortecedor ", "peca", 1, 20000), item("Alinhamento", "terceiros", 1, 8000)],
+    _os(conn, mecanico.id, date(2026, 9, 1),
+        [item("Amortecedor", "peca", 2, 20000), item("Troca", "mao_de_obra", 1, 10000)], desconto=5000)
+    _os(conn, mecanico.id, date(2026, 9, 15),
+        [item("amortecedor ", "peca", 1, 20000), item("Alinhamento", "terceiros", 1, 8000)],
         cliente_nome="Ana", cliente_documento="", cliente_telefone="(00) 98888-0000", placa="AAA1A11")
     _os(conn, socio_id, date(2026, 10, 2), [item("Troca", "mao_de_obra", 1, 30000)])
     _os(conn, mecanico.id, date(2026, 10, 3), [item("Não conta", "peca", 1, 99900)], status="aberta")
@@ -113,11 +114,11 @@ def test_exportar_csv_no_padrao_do_excel_brasileiro(conn, cenario, tmp_path):
         linhas = list(csv.reader(arquivo, delimiter=";"))
     assert linhas[0] == relatorios.COLUNAS_OS
     assert len(linhas) == 4  # cabeçalho + 3 OS finalizadas
-    primeira = dict(zip(linhas[0], linhas[1]))
+    primeira = dict(zip(linhas[0], linhas[1], strict=True))
     assert primeira["Data"] == "01/09/2026"
     assert (primeira["Peças"], primeira["Desconto"], primeira["Total"]) == ("400,00", "50,00", "450,00")
     assert primeira["Comissão"] == "30,00" and primeira["Comissão paga"] == "Não"
-    socio = dict(zip(linhas[0], linhas[3]))
+    socio = dict(zip(linhas[0], linhas[3], strict=True))
     assert socio["Comissão"] == "0,00" and socio["Comissão paga"] == ""
 
 

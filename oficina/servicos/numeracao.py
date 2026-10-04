@@ -34,5 +34,6 @@ def definir_proximo_numero(conn: sqlite3.Connection, chave: str, numero: int) ->
     """Ajuste manual da numeração, feito pela tela de Configurações (não faz commit)."""
     minimo = menor_numero_permitido(conn, chave)
     if numero < minimo:
-        raise ErroValidacao(f"O próximo número deve ser pelo menos {minimo}, pois já existe um documento com o número {minimo - 1}.")
+        raise ErroValidacao(f"O próximo número deve ser pelo menos {minimo}, "
+                            f"pois já existe um documento com o número {minimo - 1}.")
     cfg.definir(conn, chave, numero)
