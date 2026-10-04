@@ -248,7 +248,7 @@ class DialogoWhatsApp(_DialogoBase):
         self.layout_principal.insertWidget(0, explicacao)
         self.numero = CampoTelefone()
         self.numero.setText(cfg.obter(conn, cfg.WHATSAPP_NUMERO))
-        self.numero.setPlaceholderText("(61) 99999-0000")
+        self.numero.setPlaceholderText("(11) 99999-0000")
         self.modo = QComboBox()
         for chave, nome in whatsapp.MODOS.items():
             self.modo.addItem(nome, chave)
@@ -259,5 +259,5 @@ class DialogoWhatsApp(_DialogoBase):
 
     def salvar(self) -> None:
         if not whatsapp.numero_internacional(self.numero.text()):
-            raise ErroValidacao("Digite o número com DDD, por exemplo (61) 99999-0000.")
+            raise ErroValidacao("Digite o número com DDD, por exemplo (11) 99999-0000.")
         cfg.salvar(self.conn, {cfg.WHATSAPP_NUMERO: self.numero.text(), cfg.WHATSAPP_MODO: self.modo.currentData()})

@@ -64,7 +64,7 @@ def test_excluir_cliente_mantem_os_e_solta_veiculo(conn, mecanico):
 
 
 def test_busca_de_clientes(conn):
-    clientes.salvar_cliente(conn, Cliente(nome="José Antônio", documento="111.222.333-44", telefone="(61) 98888-7777"))
+    clientes.salvar_cliente(conn, Cliente(nome="José Antônio", documento="111.222.333-44", telefone="(11) 98888-7777"))
     assert len(clientes.listar_clientes(conn, "jose antonio")) == 1
     assert len(clientes.listar_clientes(conn, "98888")) == 1
     assert clientes.listar_clientes(conn, "Maria") == []

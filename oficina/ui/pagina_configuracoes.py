@@ -135,7 +135,7 @@ class PaginaConfiguracoes(Pagina):
         grupo = QGroupBox("WhatsApp (botão \"Enviar no WhatsApp\" da OS e do orçamento)")
         form = QFormLayout(grupo)
         self.whatsapp_numero = CampoTelefone()
-        self.whatsapp_numero.setPlaceholderText("(61) 99999-0000")
+        self.whatsapp_numero.setPlaceholderText("(11) 99999-0000")
         self.whatsapp_numero.setMaximumWidth(220)
         self.whatsapp_modo = QComboBox()
         for chave, nome in whatsapp.MODOS.items():
@@ -215,7 +215,7 @@ class PaginaConfiguracoes(Pagina):
             return
         numero = self.whatsapp_numero.text().strip()
         if numero and not whatsapp.numero_internacional(numero):
-            avisar(self, "O número do WhatsApp deve ter DDD, por exemplo (61) 99999-0000.")
+            avisar(self, "O número do WhatsApp deve ter DDD, por exemplo (11) 99999-0000.")
             return
         try:
             with self.conn:
@@ -267,7 +267,7 @@ class PaginaConfiguracoes(Pagina):
     def _testar_whatsapp(self) -> None:
         numero = whatsapp.numero_internacional(self.whatsapp_numero.text())
         if not numero:
-            avisar(self, "Digite o número com DDD, por exemplo (61) 99999-0000.")
+            avisar(self, "Digite o número com DDD, por exemplo (11) 99999-0000.")
             return
         modo = self.whatsapp_modo.currentData()
         if not acoes.abrir_url(whatsapp.url_conversa(numero, modo)):

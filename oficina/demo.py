@@ -147,6 +147,8 @@ def gerar(conn, meses: int = 12, hoje: date | None = None, semente: int = SEMENT
         cfg.ENDERECO_OFICINA: "Av. das Oficinas, 1000 - Centro, Cidade Exemplo/UF",
         cfg.TELEFONE_OFICINA: "(00) 3000-0000",
         cfg.CNPJ_OFICINA: "00.000.000/0001-00",
+        cfg.MOSTRAR_CONTATO_NA_NOTA: "1",
+        cfg.MOSTRAR_LOGO_NA_NOTA: "1",
         cfg.CONFIGURACAO_INICIAL_FEITA: "1",
         cfg.PROXIMO_NUMERO_OS: "1000",
         cfg.PROXIMO_NUMERO_ORCAMENTO: "500",

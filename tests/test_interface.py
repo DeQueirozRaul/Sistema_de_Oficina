@@ -146,7 +146,7 @@ def test_placa_conhecida_preenche_dados(app, janela):
     pagina.ano.setText("2019")
     pagina.km.setText("50000")
     pagina.cliente.setText("Maria")
-    pagina.telefone.setText("(61) 90000-0000")
+    pagina.telefone.setText("(11) 90000-0000")
     pagina._salvar(finalizar=False, gerar_pdf=False)
 
     pagina.nova(confirmar=False)
@@ -249,7 +249,7 @@ def whatsapp_simulado(janela, monkeypatch, tmp_path):
     from oficina.servicos import configuracoes as cfg
     from oficina.ui import acoes
 
-    cfg.salvar(janela.conn, {cfg.WHATSAPP_NUMERO: "(61) 99999-0000", cfg.WHATSAPP_EXPLICACAO_VISTA: "1"})
+    cfg.salvar(janela.conn, {cfg.WHATSAPP_NUMERO: "(11) 99999-0000", cfg.WHATSAPP_EXPLICACAO_VISTA: "1"})
     abertos: list[str] = []
     resultado = {"aplicativo_abre": True}
 
@@ -289,7 +289,7 @@ def test_os_gerada_abre_whatsapp_automaticamente(app, janela, whatsapp_simulado,
     pagina._salvar(finalizar=True, gerar_pdf=True)
     _esperar(app, lambda: abertos)
 
-    assert abertos == ["whatsapp://send?phone=5561999990000"]
+    assert abertos == ["whatsapp://send?phone=5511999990000"]
     assert _arquivo_na_area_de_transferencia(app) == [_caminho(pdf)]
     assert len(janela.respostas.mensagens) == quantidade_mensagens  # nenhuma janela por cima do WhatsApp
     assert pagina.botao_whatsapp.isVisibleTo(pagina)
@@ -309,7 +309,7 @@ def test_orcamento_envia_pelo_whatsapp_ao_escolher(app, janela, whatsapp_simulad
     tela._gerar()
     _esperar(app, lambda: len(abertos) == 2)
 
-    assert abertos == ["whatsapp://send?phone=5561999990000", "https://web.whatsapp.com/send?phone=5561999990000"]
+    assert abertos == ["whatsapp://send?phone=5511999990000", "https://web.whatsapp.com/send?phone=5511999990000"]
     assert _arquivo_na_area_de_transferencia(app) == [_caminho(pdf)]
 
 
@@ -350,7 +350,7 @@ def test_whatsapp_sem_numero_pede_o_numero(app, janela, monkeypatch, tmp_path):
             self.conn = conn
 
         def exec(self):
-            cfg.salvar(self.conn, {cfg.WHATSAPP_NUMERO: "(61) 3333-4444"})
+            cfg.salvar(self.conn, {cfg.WHATSAPP_NUMERO: "(11) 3333-4444"})
             return True
 
     abertos = []
@@ -359,7 +359,7 @@ def test_whatsapp_sem_numero_pede_o_numero(app, janela, monkeypatch, tmp_path):
     monkeypatch.setattr(acoes, "explicar_envio", lambda parent: (True, True))
 
     assert acoes.enviar_whatsapp(janela, _pdf_falso(tmp_path, "x.pdf"), "OS 1")
-    assert abertos == ["whatsapp://send?phone=556133334444"]
+    assert abertos == ["whatsapp://send?phone=551133334444"]
     assert cfg.obter(janela.conn, cfg.WHATSAPP_EXPLICACAO_VISTA) == "1"
     assert not acoes.enviar_whatsapp(janela, str(tmp_path / "nao_existe.pdf"), "OS 2")
     assert "não foi encontrado" in janela.respostas.mensagens[-1]
@@ -417,24 +417,24 @@ def test_whatsapp_vai_para_o_celular_do_cliente(app, janela, whatsapp_simulado, 
     pagina.mecanico.setCurrentIndex(0)
     pagina.placa.setText("ABC1D23")
     pagina.cliente.setText("João")
-    pagina.telefone.setText("(61) 98888-7777")
+    pagina.telefone.setText("(11) 98888-7777")
     pagina._salvar(finalizar=True, gerar_pdf=True)
     _esperar(app, lambda: abertos)
-    assert abertos == ["whatsapp://send?phone=5561988887777"]
+    assert abertos == ["whatsapp://send?phone=5511988887777"]
     assert "cliente João" in janela.statusBar().currentMessage()
 
     # "Sempre a loja" nas Configurações
     cfg.salvar(janela.conn, {cfg.WHATSAPP_DESTINO: "loja"})
     pagina._enviar_whatsapp()
-    assert abertos[-1] == "whatsapp://send?phone=5561999990000"
+    assert abertos[-1] == "whatsapp://send?phone=5511999990000"
     assert "da loja" in janela.statusBar().currentMessage()
 
 
 def test_whatsapp_cliente_com_telefone_fixo_vai_para_a_loja(app, janela, whatsapp_simulado, tmp_path):
     abertos, _, _ = whatsapp_simulado
     from oficina.ui import acoes
-    acoes.enviar_whatsapp(janela, _pdf_falso(tmp_path, "x.pdf"), "OS 1", "Maria", "(61) 3333-4444")
-    assert abertos == ["whatsapp://send?phone=5561999990000"]
+    acoes.enviar_whatsapp(janela, _pdf_falso(tmp_path, "x.pdf"), "OS 1", "Maria", "(11) 3333-4444")
+    assert abertos == ["whatsapp://send?phone=5511999990000"]
 
 
 def test_orcamento_vai_para_o_dono_do_carro(app, janela, whatsapp_simulado, tmp_path):
@@ -447,7 +447,7 @@ def test_orcamento_vai_para_o_dono_do_carro(app, janela, whatsapp_simulado, tmp_
     _adicionar_item(pagina.editor, "Pivô", "peca", "1", "80")
     pagina.placa.setText("QWE4R56")
     pagina.cliente.setText("Carlos")
-    pagina.telefone.setText("(61) 97777-6666")
+    pagina.telefone.setText("(11) 97777-6666")
     pagina._salvar(finalizar=False, gerar_pdf=False)
 
     orcamento = orcamentos.salvar(janela.conn, Orcamento(placa="qwe-4r56", itens=[Item("Pivô", "peca", 1, 8000)]))
@@ -457,7 +457,7 @@ def test_orcamento_vai_para_o_dono_do_carro(app, janela, whatsapp_simulado, tmp_
     historico.abas.setCurrentIndex(1)
     historico.tabela_orc.selectRow(0)
     historico._whatsapp_orcamento()
-    assert abertos == ["whatsapp://send?phone=5561977776666"]
+    assert abertos == ["whatsapp://send?phone=5511977776666"]
 
 
 def test_whatsapp_do_cliente_nao_exige_numero_da_loja(app, janela, monkeypatch, tmp_path):
@@ -471,10 +471,10 @@ def test_whatsapp_do_cliente_nao_exige_numero_da_loja(app, janela, monkeypatch, 
     monkeypatch.setattr(acoes, "DialogoWhatsApp", DialogoQueNaoPodeAbrir)
     monkeypatch.setattr(acoes, "abrir_url", lambda url: abertos.append(url) or True)
     monkeypatch.setattr(acoes, "explicar_envio", lambda parent: (True, True))
-    assert acoes.envio_automatico_ativo(janela.conn, "(61) 98888-7777")
+    assert acoes.envio_automatico_ativo(janela.conn, "(11) 98888-7777")
     assert not acoes.envio_automatico_ativo(janela.conn, "")
-    assert acoes.enviar_whatsapp(janela, _pdf_falso(tmp_path, "x.pdf"), "OS 1", "Ana", "(61) 98888-7777")
-    assert abertos == ["whatsapp://send?phone=5561988887777"]
+    assert acoes.enviar_whatsapp(janela, _pdf_falso(tmp_path, "x.pdf"), "OS 1", "Ana", "(11) 98888-7777")
+    assert abertos == ["whatsapp://send?phone=5511988887777"]
 
 
 

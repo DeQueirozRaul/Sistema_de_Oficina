@@ -23,7 +23,7 @@ DESTINOS = {
 
 
 def numero_internacional(telefone: str) -> str:
-    """'(61) 99999-0000' -> '5561999990000'. Devolve '' se o número for inválido.
+    """'(11) 99999-0000' -> '5511999990000'. Devolve '' se o número for inválido.
 
     Números com DDD (10 ou 11 dígitos) ganham o código do Brasil (55).
     """

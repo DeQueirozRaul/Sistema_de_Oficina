@@ -14,7 +14,7 @@ OFICINA = {"nome": "AUTO CENTER EXEMPLO", "endereco": "Rua das Oficinas, 100", "
 def _os(**campos):
     padrao = dict(
         numero=1002, data=date(2026, 9, 25), mecanico_nome="Marcos", cliente_nome="João da Silva",
-        cliente_documento="123.456.789-00", cliente_telefone="(61) 99999-0000", placa="ABC-1D23", modelo="Gol",
+        cliente_documento="123.456.789-00", cliente_telefone="(11) 99999-0000", placa="ABC-1D23", modelo="Gol",
         ano="2015", km="120000", desconto=1000, observacoes="Revisar em 10.000 km",
         itens=[item("Amortecedor dianteiro", "peca", 2, 25000), item("Troca de amortecedor", "mao_de_obra", 1, 15000)],
     )
@@ -42,10 +42,10 @@ def test_modelo_da_os_tem_o_mesmo_conteudo_da_nota_original():
 
 
 def test_cabecalho_com_telefone_e_cnpj():
-    oficina = dict(OFICINA, telefone="(61) 3333-4444", cnpj="12.345.678/0001-99")
+    oficina = dict(OFICINA, telefone="(11) 3333-4444", cnpj="12.345.678/0001-99")
     nota = nota_pdf.montar_orcamento(Orcamento(numero=7, itens=[item()]), oficina)
     assert nota.cabecalho.titulo == "ORÇAMENTO - AUTO CENTER EXEMPLO"
-    assert nota.cabecalho.linhas[1] == "Tel.: (61) 3333-4444   •   CNPJ: 12.345.678/0001-99"
+    assert nota.cabecalho.linhas[1] == "Tel.: (11) 3333-4444   •   CNPJ: 12.345.678/0001-99"
     assert ["Orçamento Nº:", "7"] == _textos(nota)[0][:2]
     assert ["Observações / Validade:"] in _textos(nota)
 
@@ -70,8 +70,10 @@ def test_aparencia_faixa_azul_e_total_geral(app):
     imagem = nota_pdf.imagem_previa(nota_pdf.montar_os(_os(), OFICINA), dpi=72)  # 1 px = 1 pt
     meio = imagem.width() // 2
     assert QColor(imagem.pixel(meio, 36 + 57)).name() == nota_pdf.AZUL_ESCURO.lower()  # faixa sob o endereço
-    azuis = [y for y in range(imagem.height())
-             if QColor(imagem.pixel(imagem.width() - 70, y)).name() == nota_pdf.AZUL_ESCURO.lower()]
+    # Coluna de pixels no espaço entre o texto e a borda direita da nota: só o fundo das células,
+    # nunca letras (o resultado não depende da fonte instalada).
+    x = int((nota_pdf.LARGURA_PAGINA + nota_pdf.LARGURA_NOTA) / 2 - nota_pdf.RESPIRO_TEXTO / 2)
+    azuis = [y for y in range(imagem.height()) if QColor(imagem.pixel(x, y)).name() == nota_pdf.AZUL_ESCURO.lower()]
     assert len(azuis) >= 20  # linha "TOTAL GERAL" (24 pt) pintada de azul na coluna do valor
 
 

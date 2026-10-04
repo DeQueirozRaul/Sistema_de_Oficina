@@ -240,7 +240,7 @@ class CampoDocumento(_CampoComMascara):
 
 
 class CampoTelefone(_CampoComMascara):
-    """(61) 9999-9999 ou (61) 99999-9999."""
+    """(11) 9999-9999 ou (11) 99999-9999."""
 
     maximo_digitos = 11
 
