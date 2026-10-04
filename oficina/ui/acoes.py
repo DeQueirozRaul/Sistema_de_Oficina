@@ -3,9 +3,9 @@
 import sys
 from pathlib import Path
 
-from PySide6.QtCore import QByteArray, QMimeData, QUrl
+from PySide6.QtCore import QByteArray, QUrl
 from PySide6.QtGui import QDesktopServices, QGuiApplication
-from PySide6.QtWidgets import QCheckBox, QMessageBox
+from PySide6.QtWidgets import QCheckBox, QFileSystemModel, QMessageBox
 
 from oficina import caminhos, whatsapp
 from oficina.documentos import emissao
@@ -107,9 +107,15 @@ def envio_automatico_ativo(conn, telefone_cliente: str = "") -> bool:
 
 def copiar_arquivo(caminho: str) -> None:
     """Coloca o arquivo na área de transferência, como o "Copiar" do Windows Explorer,
-    para que o Ctrl+V no WhatsApp anexe o PDF."""
-    dados = QMimeData()
-    dados.setUrls([QUrl.fromLocalFile(str(caminho))])
+    para que o Ctrl+V no WhatsApp anexe o PDF.
+
+    O QMimeData é criado pelo próprio Qt (QFileSystemModel.mimeData), não com
+    QMimeData() no Python: a área de transferência só o apaga quando o programa
+    já está encerrando, e um objeto criado no Python faria o PySide chamar o
+    Python depois de ele ter sido finalizado (falha de segmentação ao fechar).
+    """
+    modelo = QFileSystemModel()
+    dados = modelo.mimeData([modelo.index(str(caminho))])  # contém a URL do arquivo
     if sys.platform == "win32":
         # Indica "copiar" (e não "recortar"), como o Explorer faz. 1 = DROPEFFECT_COPY.
         dados.setData('application/x-qt-windows-mime;value="Preferred DropEffect"', QByteArray(b"\x01\x00\x00\x00"))

@@ -42,3 +42,30 @@ def test_numero_destino():
     assert numero_destino(DESTINO_CLIENTE, "(11) 3222-1111", loja) == ("551133334444", "loja")  # cliente com fixo
     assert numero_destino(DESTINO_LOJA, "(11) 98888-7777", loja) == ("551133334444", "loja")
     assert numero_destino(DESTINO_LOJA, "", "") == ("", "loja")
+
+
+def test_programa_fecha_sem_erro_depois_de_copiar_o_pdf(tmp_path):
+    """Regressão: copiar o PDF para a área de transferência fazia o Python cair ao encerrar (código 139)."""
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    pytest.importorskip("PySide6.QtWidgets")
+    pdf = tmp_path / "OS_ABC1D23_1000.pdf"
+    pdf.write_bytes(b"%PDF-1.4")
+    script = (
+        "import sys\n"
+        "from PySide6.QtGui import QGuiApplication\n"
+        "from PySide6.QtWidgets import QApplication\n"
+        "from oficina.ui import acoes\n"
+        "app = QApplication(sys.argv[:1])\n"
+        "acoes.copiar_arquivo(sys.argv[1])\n"
+        "urls = QGuiApplication.clipboard().mimeData().urls()\n"
+        "assert [u.fileName() for u in urls] == ['OS_ABC1D23_1000.pdf'], urls\n"
+    )
+    ambiente = dict(os.environ, QT_QPA_PLATFORM="offscreen")
+    raiz = Path(__file__).resolve().parent.parent
+    resultado = subprocess.run([sys.executable, "-c", script, str(pdf)], cwd=raiz, env=ambiente,
+                               capture_output=True, text=True, timeout=60)
+    assert resultado.returncode == 0, resultado.stderr

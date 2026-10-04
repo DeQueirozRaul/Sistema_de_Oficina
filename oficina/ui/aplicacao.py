@@ -49,9 +49,10 @@ def verificar() -> int:
     """Autoteste do programa instalado: python main.py --verificar (ou SistemaOficina.exe --verificar).
 
     Abre a janela com uma oficina de demonstração em memória, passa por todas as
-    telas, gera o PDF de uma OS e exporta o relatório em Excel, sem tocar nos
-    dados reais. Devolve 0 se tudo funcionou. Usado no GitHub Actions para
-    garantir que o .exe gerado leva tudo de que precisa (plugins do Qt, openpyxl...).
+    telas, gera o PDF de uma OS, copia-o para a área de transferência e exporta
+    o relatório em Excel, sem tocar nos dados reais. Devolve 0 se tudo funcionou.
+    Usado no GitHub Actions para garantir que o .exe gerado leva tudo de que
+    precisa (plugins do Qt, openpyxl...) e fecha sem erro.
     Erros vão para um arquivo de log, porque o .exe não tem console.
     """
     import tempfile
@@ -81,6 +82,7 @@ def verificar() -> int:
             ok, mensagem = emissao.emitir_os(os_, cfg.dados_oficina(conn), Path(pasta) / "OS")
             if not ok:
                 raise RuntimeError(mensagem)
+            acoes.copiar_arquivo(mensagem)  # como o botão do WhatsApp (o programa precisa fechar sem erro depois)
             fim = date.today()
             relatorios.exportar_excel(conn, fim - timedelta(days=60), fim, Path(pasta) / "relatorio.xlsx")
             janela.close()
