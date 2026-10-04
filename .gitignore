@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Executável (gerado pelo gerar_exe.bat)
+build/
+dist/
+*.spec
+
+# Dados da oficina: ficam em Documentos/Sistema Oficina, nunca no repositório
+# (têm CPF e telefone de clientes)
+*.db
+*.db-journal
+contador_orcamento.txt
+OS_*.pdf
+OS_*.xlsx
+ORC_*.pdf
+ORC_*.xlsx
+
+# Banco de demonstração (python main.py --demo)
+dados_demo/
+
+# Jupyter
+.ipynb_checkpoints/

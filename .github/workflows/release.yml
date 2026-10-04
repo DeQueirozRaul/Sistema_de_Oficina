@@ -1,0 +1,67 @@
+name: Gerar executável
+
+# Ao criar uma tag (ex.: git tag v2.1.0 && git push origin v2.1.0), gera o .exe
+# para Windows e publica o .zip na página de Releases. Em pull requests que mexem
+# no empacotamento, e quando rodado à mão (aba Actions), só gera e testa o .exe:
+# o .zip fica como artefato do workflow.
+on:
+  push:
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - main.py
+      - requirements*.txt
+      - oficina/ui/recursos/**
+      - oficina/ui/aplicacao.py
+      - .github/workflows/release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - name: Dependências
+        run: python -m pip install -r requirements-dev.txt
+      - name: Testes
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: python -m pytest
+      - name: Gerar o executável (PyInstaller)
+        run: >-
+          python -m PyInstaller --noconfirm --clean --windowed --name SistemaOficina
+          --icon oficina/ui/recursos/icone.ico
+          --add-data "oficina/ui/recursos;oficina/ui/recursos"
+          main.py
+      - name: Autoteste do executável
+        shell: pwsh
+        run: |
+          $processo = Start-Process -FilePath "dist\SistemaOficina\SistemaOficina.exe" -ArgumentList "--verificar" -Wait -PassThru
+          Get-Content "$env:TEMP\sistema_oficina_verificacao.log"
+          if ($processo.ExitCode -ne 0) { exit 1 }
+      - name: Compactar
+        shell: pwsh
+        env:
+          NOME: SistemaOficina-${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'teste' }}-windows.zip
+        run: Compress-Archive -Path dist\SistemaOficina -DestinationPath $env:NOME
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SistemaOficina-windows
+          path: SistemaOficina-*-windows.zip
+      - name: Publicar na página de Releases
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release view "$TAG" > /dev/null 2>&1 || gh release create "$TAG" --title "Sistema de Oficina $TAG" --generate-notes
+          gh release upload "$TAG" SistemaOficina-"$TAG"-windows.zip --clobber

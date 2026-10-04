@@ -1,0 +1,4 @@
+# Para o notebook em analises/ (não é necessário para usar o sistema)
+pandas>=2.2
+matplotlib>=3.8
+jupyterlab>=4.0

@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sistema-de-oficina"
+dynamic = ["version", "dependencies"]
+description = "Gestão de oficina mecânica: ordens de serviço, orçamentos, comissão de mecânicos e relatórios."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [{ name = "DeQueirozRaul" }]
+keywords = ["oficina", "ordem de serviço", "pyside6", "sqlite", "comissão"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Natural Language :: Portuguese (Brazilian)",
+    "Environment :: X11 Applications :: Qt",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+]
+
+[project.urls]
+Repositorio = "https://github.com/DeQueirozRaul/Sistema_de_Oficina"
+
+[project.gui-scripts]
+sistema-oficina = "oficina.ui.aplicacao:executar"
+
+[tool.setuptools.dynamic]
+version = { attr = "oficina.VERSAO" }
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+include = ["oficina*"]
+
+[tool.setuptools.package-data]
+"oficina.ui" = ["recursos/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["analises/*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "B", "UP", "N", "BLE"]
+ignore = [
+    "E741",  # "l" como nome de linha do banco em compreensões curtas
+    "N818",  # exceções em português começam com "Erro" (ErroValidacao), não terminam com "Error"
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402"]
