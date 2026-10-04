@@ -19,3 +19,6 @@ OS_*.pdf
 OS_*.xlsx
 ORC_*.pdf
 ORC_*.xlsx
+
+# Banco de demonstração (python main.py --demo)
+dados_demo/
