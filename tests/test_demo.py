@@ -10,7 +10,7 @@ HOJE = date(2026, 10, 7)  # quarta-feira
 def test_demo_gera_movimento_realista_e_reproduzivel(conn):
     resumo = demo.gerar(conn, meses=3, hoje=HOJE)
 
-    assert resumo["os"] > 100 and resumo["orcamentos"] > 0
+    assert resumo["os"] > 80 and resumo["orcamentos"] > 0
     assert resumo["inicio"] == date(2026, 8, 1)
     datas = [linha[0] for linha in conn.execute("SELECT DISTINCT data FROM ordens_servico")]
     assert all(date.fromisoformat(d).weekday() < 5 for d in datas)  # fim de semana fechado

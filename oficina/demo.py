@@ -32,7 +32,9 @@ PRIMEIROS_NOMES = ["Ana", "Bruno", "Camila", "Diego", "Eduarda", "Felipe", "Gabr
                    "João", "Karina", "Lucas", "Mariana", "Nicolas", "Olívia", "Paulo", "Renata", "Samuel",
                    "Tatiane", "Vinícius", "Larissa", "Rodrigo", "Patrícia", "Gustavo", "Fernanda", "André"]
 SOBRENOMES = ["Almeida", "Barbosa", "Cardoso", "Dias", "Ferreira", "Gomes", "Lima", "Martins", "Nunes",
-              "Oliveira", "Pereira", "Ribeiro", "Santos", "Souza", "Teixeira", "Vieira", "Rocha", "Costa"]
+              "Oliveira", "Pereira", "Ribeiro", "Santos", "Souza", "Teixeira", "Vieira", "Rocha", "Costa",
+              "Araújo", "Batista", "Campos", "Duarte", "Freitas", "Lopes", "Machado", "Mendes", "Moura",
+              "Pinto", "Ramos", "Sales"]
 EMPRESAS = ["Transportes Rápido Ltda", "Entregas Expressa ME", "Locadora Bom Caminho Ltda", "Frota Fácil Ltda"]
 MODELOS = ["Gol 1.0", "Onix 1.4", "HB20 1.6", "Palio 1.0", "Strada 1.4", "Corolla 2.0", "Civic 2.0", "Fox 1.6",
            "Ka 1.0", "Sandero 1.6", "Saveiro 1.6", "Fiorino 1.4", "Hilux 2.8", "Kwid 1.0", "Argo 1.3", "Polo 1.0"]
@@ -104,10 +106,15 @@ def _telefone(r: random.Random) -> str:
 
 
 def _clientes(r: random.Random, quantidade: int) -> list[_Cliente]:
+    # Nomes sem repetição: o sistema reconhece o cliente pelo nome, e dois "João Silva" virariam um só.
+    pessoas = [f"{nome} {sobrenome}" for nome in PRIMEIROS_NOMES for sobrenome in SOBRENOMES]
+    r.shuffle(pessoas)
+    if quantidade > len(EMPRESAS) + len(pessoas):
+        raise ValueError(f"No máximo {len(EMPRESAS) + len(pessoas)} clientes de demonstração.")
     lista = []
     for i in range(quantidade):
         frota = i < len(EMPRESAS)
-        nome = EMPRESAS[i] if frota else f"{r.choice(PRIMEIROS_NOMES)} {r.choice(SOBRENOMES)}"
+        nome = EMPRESAS[i] if frota else pessoas[i - len(EMPRESAS)]
         lista.append(_Cliente(nome=nome, telefone=_telefone(r), placa=_placa(r), modelo=r.choice(MODELOS),
                               ano=str(r.randint(2008, 2024)), km=r.randint(20_000, 180_000), frota=frota,
                               documento=f"00.000.000/000{i + 1}-00" if frota else ""))
@@ -152,9 +159,9 @@ def gerar(conn, meses: int = 12, hoje: date | None = None, semente: int = SEMENT
     ]
     ids = [mecanicos.salvar(conn, m) for m, _ in equipe]
     pesos_mecanicos = [peso for _, peso in equipe]
-    clientes = _clientes(r, 380)
+    clientes = _clientes(r, 600)
     # Poucos clientes voltam muitas vezes (frotas e fiéis); a maioria vem uma vez no ano.
-    pesos_clientes = [12 if c.frota else r.choice([1, 1, 1, 1, 1, 2, 4]) for c in clientes]
+    pesos_clientes = [12 if c.frota else r.choice([1, 1, 1, 1, 1, 1, 1, 2, 4]) for c in clientes]
 
     inicio = (hoje.replace(day=1) - timedelta(days=1)).replace(day=1)
     for _ in range(meses - 2):
@@ -180,7 +187,9 @@ def gerar(conn, meses: int = 12, hoje: date | None = None, semente: int = SEMENT
                         itens=itens, observacoes="Orçamento válido por 7 dias."))
                     orcamentos_criados += 1
                     orcamento_id = orcamento.id
-                    if r.random() < 0.3:  # cliente não aprovou: orçamento fica sem OS
+                    # Cliente não aprovou (fica sem OS). Quanto mais caro, maior a chance de recusa:
+                    # ~15% nos serviços baratos, ~50% a partir de R$ 1.500.
+                    if r.random() < 0.15 + 0.35 * min(1.0, subtotal / 150_000):
                         continue
 
                 recente = (hoje - dia).days <= 2

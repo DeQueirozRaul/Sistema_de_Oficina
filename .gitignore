@@ -22,3 +22,6 @@ ORC_*.xlsx
 
 # Banco de demonstração (python main.py --demo)
 dados_demo/
+
+# Jupyter
+.ipynb_checkpoints/
