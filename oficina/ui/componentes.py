@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
 
 from oficina.banco import somente_digitos
 from oficina.dinheiro import formatar_reais, texto_para_centavos
-from oficina.periodos import deslocar_mes, formatar_data, mes, nome_mes, semana
+from oficina.periodos import MESES, deslocar_mes, formatar_data, mes, nome_mes, semana
 
 DIREITA = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
 CENTRO = Qt.AlignmentFlag.AlignCenter
@@ -374,7 +374,9 @@ class SeletorPeriodo(QWidget):
 
     alterado = Signal()
 
-    NOMES = {"semana": "Semanal", "mes": "Mensal", "personalizado": "Período específico", "tudo": "Todas as datas"}
+    NOMES = {"semana": "Semanal", "mes": "Mensal", "12meses": "Últimos 12 meses", "ano": "Anual",
+             "personalizado": "Período específico", "tudo": "Todas as datas"}
+    NAVEGAVEIS = ("semana", "mes", "12meses", "ano")
 
     def __init__(self, modos=("semana", "mes", "personalizado"), inicial="mes"):
         super().__init__()
@@ -427,6 +429,10 @@ class SeletorPeriodo(QWidget):
             return semana(self._referencia)
         if modo == "mes":
             return mes(self._referencia)
+        if modo == "12meses":
+            return deslocar_mes(self._referencia, -11), mes(self._referencia)[1]
+        if modo == "ano":
+            return date(self._referencia.year, 1, 1), date(self._referencia.year, 12, 31)
         if modo == "personalizado":
             inicio, fim = self.de.data(), self.ate.data()
             return (inicio, fim) if inicio <= fim else (fim, inicio)
@@ -438,6 +444,10 @@ class SeletorPeriodo(QWidget):
             return "todas as datas"
         if self.modo() == "mes":
             return nome_mes(inicio)
+        if self.modo() == "ano":
+            return str(inicio.year)
+        if self.modo() == "12meses":
+            return f"{_mes_abreviado(inicio)} a {_mes_abreviado(fim)}"
         return f"{formatar_data(inicio)} a {formatar_data(fim)}"
 
     def _modo_mudou(self) -> None:
@@ -447,6 +457,8 @@ class SeletorPeriodo(QWidget):
     def _navegar(self, passo: int) -> None:
         if self.modo() == "semana":
             self._referencia += timedelta(days=7 * passo)
+        elif self.modo() == "ano":
+            self._referencia = date(self._referencia.year + passo, self._referencia.month, 1)
         else:
             self._referencia = deslocar_mes(self._referencia, passo)
         self._atualizar()
@@ -459,7 +471,7 @@ class SeletorPeriodo(QWidget):
 
     def _atualizar(self) -> None:
         modo = self.modo()
-        navegavel = modo in ("semana", "mes")
+        navegavel = modo in self.NAVEGAVEIS
         for widget in (self.anterior, self.proximo, self.hoje, self.descricao):
             widget.setVisible(navegavel)
         for widget in (self.de, self.ate, self.rotulo_ate):
@@ -468,8 +480,15 @@ class SeletorPeriodo(QWidget):
             inicio, fim = self.periodo()
             if modo == "mes":
                 self.descricao.setText(nome_mes(inicio).capitalize())
+            elif modo in ("ano", "12meses"):
+                self.descricao.setText(self.descricao_periodo().capitalize())
             else:
                 self.descricao.setText(f"{inicio:%d/%m} a {fim:%d/%m/%Y}")
+
+
+def _mes_abreviado(dia: date) -> str:
+    """date(2026, 10, 1) -> 'out/2026'."""
+    return f"{MESES[dia.month - 1][:3]}/{dia.year}"
 
 
 # ---------------------------------------------------------------- mensagens

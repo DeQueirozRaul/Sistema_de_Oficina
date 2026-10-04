@@ -1,7 +1,7 @@
 import pytest
 
 from oficina.dinheiro import (
-    aplicar_percentual, formatar_quantidade, formatar_reais, texto_para_centavos,
+    aplicar_percentual, formatar_compacto, formatar_quantidade, formatar_reais, texto_para_centavos,
     texto_para_quantidade, total_do_item,
 )
 
@@ -32,6 +32,16 @@ def test_formatar_reais():
     assert formatar_reais(123456789) == "R$ 1.234.567,89"
     assert formatar_reais(5, simbolo=False) == "0,05"
     assert formatar_reais(-1000) == "-R$ 10,00"
+
+
+def test_formatar_compacto():
+    assert formatar_compacto(0) == "0"
+    assert formatar_compacto(85000) == "850"
+    assert formatar_compacto(100000) == "1 mil"
+    assert formatar_compacto(4823050) == "48,2 mil"
+    assert formatar_compacto(99996000) == "1 mi"  # 999,96 mil arredondaria para "1000 mil"
+    assert formatar_compacto(123456789) == "1,23 mi"
+    assert formatar_compacto(-250000) == "-2,5 mil"
 
 
 def test_quantidade():

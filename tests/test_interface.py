@@ -36,8 +36,11 @@ class Respostas:
 def janela(app, tmp_path, monkeypatch):
     monkeypatch.setenv("OFICINA_DADOS", str(tmp_path))
     respostas = Respostas()
-    from oficina.ui import (acoes, editor_itens, pagina_comissoes, pagina_historico, pagina_orcamento, pagina_os)
-    for modulo in (acoes, editor_itens, pagina_comissoes, pagina_historico, pagina_orcamento, pagina_os):
+    from oficina.ui import (
+        acoes, editor_itens, pagina_comissoes, pagina_historico, pagina_orcamento, pagina_os, pagina_relatorios,
+    )
+    for modulo in (acoes, editor_itens, pagina_comissoes, pagina_historico, pagina_orcamento, pagina_os,
+                   pagina_relatorios):
         for nome in ("avisar", "mostrar_erro", "informar"):
             if hasattr(modulo, nome):
                 monkeypatch.setattr(modulo, nome, respostas.avisar)
@@ -489,3 +492,60 @@ def test_finalizar_gera_o_pdf_de_verdade_em_segundo_plano(app, janela):
     caminho = Path(ordens.carregar(janela.conn, pagina.os_carregada.id).caminho_pdf)
     assert caminho.name == "OS_ABC1D23_1000.pdf" and caminho.read_bytes()[:5] == b"%PDF-"
     assert pagina.botao_abrir_pdf.isVisibleTo(pagina)
+
+
+def test_relatorios_graficos_tabela_dica_e_exportacao(app, janela, monkeypatch, tmp_path):
+    from datetime import date
+
+    from PySide6.QtCore import QEvent, QPointF, Qt
+    from PySide6.QtGui import QColor, QMouseEvent
+
+    from conftest import item, nova_os
+    from oficina.ui import pagina_relatorios
+    from oficina.ui.graficos import COR_MAO_DE_OBRA, COR_PECA
+
+    marcos = mecanicos.listar(janela.conn)[0]
+    hoje = date.today()
+    for valor in (20000, 40000):
+        ordens.salvar(janela.conn, nova_os(marcos.id, data=hoje, itens=[
+            item("Amortecedor", "peca", 1, valor), item("Troca de amortecedor", "mao_de_obra", 1, 10000)]),
+            "finalizada")
+
+    janela.ir_para("relatorios")
+    pagina = janela.pagina_relatorios
+    assert pagina.periodo.descricao_periodo().endswith(f"/{hoje.year}")
+    assert pagina.card_os._valor.text() == "2"
+    assert pagina.card_faturamento._valor.text() == "R$ 800,00"
+    assert pagina.card_conversao._valor.text() == "—"
+
+    grafico = pagina.bloco_faturamento.grafico
+    assert pagina.bloco_faturamento.title() == "Faturamento por mês" and len(grafico._rotulos) == 12
+    grafico.resize(800, 300)
+    imagem = grafico.grab().toImage()
+    cores = {imagem.pixelColor(x, y).name() for x in range(0, imagem.width(), 2) for y in range(0, imagem.height(), 2)}
+    assert QColor(COR_PECA).name() in cores and QColor(COR_MAO_DE_OBRA).name() in cores
+
+    # Passar o mouse sobre a última coluna (o mês atual) destaca a coluna e mostra os valores dela.
+    area = grafico._area
+    ponto = QPointF(area.right() - grafico._banda / 2, area.center().y())
+    app.sendEvent(grafico, QMouseEvent(QEvent.Type.MouseMove, ponto, grafico.mapToGlobal(ponto),
+                                       Qt.MouseButton.NoButton, Qt.MouseButton.NoButton, Qt.KeyboardModifier.NoModifier))
+    assert grafico.destaque == 11
+    assert "R$ 800,00" in grafico._dicas[11] and "2 OS" in grafico._dicas[11]
+
+    itens = pagina.bloco_itens.grafico
+    assert [b.rotulo for b in itens._barras] == ["Amortecedor", "Troca de amortecedor"]
+    assert [b.rotulo for b in pagina.bloco_mecanicos.grafico._barras] == ["Marcos"]
+
+    pagina.bloco_itens.alternar()
+    assert pagina.bloco_itens.mostrando_tabela() and pagina.bloco_itens.tabela.rowCount() == 2
+    assert pagina.bloco_itens.botao_alternar.text() == "Ver gráfico"
+
+    destino = tmp_path / "relatorio"
+    monkeypatch.setattr(pagina_relatorios.QFileDialog, "getSaveFileName",
+                        staticmethod(lambda *a, **k: (str(destino), "")))
+    pagina._exportar_excel()
+    pagina._exportar_csv()
+    assert (tmp_path / "relatorio.xlsx").stat().st_size > 0
+    assert (tmp_path / "relatorio.csv").read_text(encoding="utf-8-sig").count("\n") == 3
+    assert sum("Relatório salvo" in m for m in janela.respostas.mensagens) == 2

@@ -23,6 +23,7 @@ from oficina.ui.pagina_inicio import PaginaInicio
 from oficina.ui.pagina_mecanicos import PaginaMecanicos
 from oficina.ui.pagina_orcamento import PaginaOrcamento
 from oficina.ui.pagina_os import PaginaOS
+from oficina.ui.pagina_relatorios import PaginaRelatorios
 
 MENU = [
     ("inicio", "Início"),
@@ -30,6 +31,7 @@ MENU = [
     ("orcamento", "Orçamento"),
     ("historico", "Histórico"),
     ("comissoes", "Comissões"),
+    ("relatorios", "Relatórios"),
     ("clientes", "Clientes e veículos"),
     ("mecanicos", "Mecânicos"),
     ("configuracoes", "Configurações"),
@@ -77,12 +79,14 @@ class JanelaPrincipal(QMainWindow):
         self.pagina_orcamento = PaginaOrcamento(self)
         self.pagina_historico = PaginaHistorico(self)
         self.pagina_comissoes = PaginaComissoes(self)
+        self.pagina_relatorios = PaginaRelatorios(self)
         self.pagina_clientes = PaginaClientes(self)
         self.pagina_mecanicos = PaginaMecanicos(self)
         self.pagina_configuracoes = PaginaConfiguracoes(self)
         self.paginas = {
             "inicio": self.pagina_inicio, "os": self.pagina_os, "orcamento": self.pagina_orcamento,
-            "historico": self.pagina_historico, "comissoes": self.pagina_comissoes, "clientes": self.pagina_clientes,
+            "historico": self.pagina_historico, "comissoes": self.pagina_comissoes,
+            "relatorios": self.pagina_relatorios, "clientes": self.pagina_clientes,
             "mecanicos": self.pagina_mecanicos, "configuracoes": self.pagina_configuracoes,
         }
         for pagina in self.paginas.values():

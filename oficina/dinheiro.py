@@ -44,6 +44,23 @@ def formatar_reais(centavos: int, simbolo: bool = True) -> str:
     return f"{sinal}R$ {texto}" if simbolo else f"{sinal}{texto}"
 
 
+def formatar_compacto(centavos: int) -> str:
+    """Valor curto para eixos e rótulos de gráfico, em reais.
+
+    85000 -> '850', 4823050 -> '48,2 mil', 123456789 -> '1,23 mi'.
+    """
+    sinal = "-" if centavos < 0 else ""
+    reais = abs(int(centavos)) / 100
+    mil = round(reais / 1_000, 1)
+    if mil >= 1_000:
+        texto = f"{reais / 1_000_000:.2f}".rstrip("0").rstrip(".") + " mi"
+    elif reais >= 1_000:
+        texto = f"{mil:.1f}".rstrip("0").rstrip(".") + " mil"
+    else:
+        texto = f"{round(reais)}"
+    return sinal + texto.replace(".", ",")
+
+
 def texto_para_quantidade(texto: str) -> float:
     """'2' -> 2.0, '1,5' -> 1.5. Levanta ValueError se inválido ou <= 0."""
     t = (texto or "").strip().replace(",", ".")
