@@ -12,6 +12,7 @@ from oficina.documentos import emissao
 from oficina.modelos import Orcamento, OrdemServico
 from oficina.servicos import configuracoes as cfg
 from oficina.servicos import orcamentos, ordens
+from oficina.ui import logo
 from oficina.ui.componentes import abrir_arquivo, avisar, executar_em_segundo_plano
 from oficina.ui.dialogos import DialogoWhatsApp
 
@@ -54,13 +55,18 @@ def _gerar(janela, texto: str, tarefa, ao_salvar_caminho, depois) -> bool:
     return True
 
 
+def logo_da_nota(conn):
+    """Logo para o cabeçalho da nota, se a oficina marcou essa opção em Configurações."""
+    return logo.imagem_logo(conn, 400) if cfg.obter(conn, cfg.MOSTRAR_LOGO_NA_NOTA) == "1" else None
+
+
 def gerar_pdf_os(janela, os_: OrdemServico, depois) -> bool:
     """Gera o PDF em segundo plano e chama depois(sucesso, caminho_ou_erro)."""
     conn = janela.conn
-    oficina, pasta = cfg.dados_oficina(conn), pasta_os(conn)
+    oficina, pasta, imagem_logo = cfg.dados_oficina(conn), pasta_os(conn), logo_da_nota(conn)
     return _gerar(
         janela, f"Gerando o PDF da OS {os_.numero}... aguarde.",
-        lambda: emissao.emitir_os(os_, oficina, pasta),
+        lambda: emissao.emitir_os(os_, oficina, pasta, imagem_logo),
         lambda caminho: ordens.definir_caminho_pdf(conn, os_.id, caminho),
         depois,
     )
@@ -68,10 +74,10 @@ def gerar_pdf_os(janela, os_: OrdemServico, depois) -> bool:
 
 def gerar_pdf_orcamento(janela, orcamento: Orcamento, depois) -> bool:
     conn = janela.conn
-    oficina, pasta = cfg.dados_oficina(conn), pasta_orcamentos(conn)
+    oficina, pasta, imagem_logo = cfg.dados_oficina(conn), pasta_orcamentos(conn), logo_da_nota(conn)
     return _gerar(
         janela, f"Gerando o PDF do orçamento {orcamento.numero}... aguarde.",
-        lambda: emissao.emitir_orcamento(orcamento, oficina, pasta),
+        lambda: emissao.emitir_orcamento(orcamento, oficina, pasta, imagem_logo),
         lambda caminho: orcamentos.definir_caminho_pdf(conn, orcamento.id, caminho),
         depois,
     )

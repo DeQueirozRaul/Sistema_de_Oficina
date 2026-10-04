@@ -1,10 +1,8 @@
-from datetime import date
 
 import pytest
 
 from conftest import item, nova_os
 from oficina.banco import conectar
-from oficina.documentos import emissao
 from oficina.modelos import Cliente, ErroValidacao, Mecanico, Orcamento, Veiculo
 from oficina.servicos import backup, catalogo, clientes, mecanicos, numeracao, orcamentos, ordens
 from oficina.servicos import configuracoes as cfg
@@ -100,24 +98,3 @@ def test_backup_mantem_ultimas_copias(tmp_path, mecanico, conn):
     copia = conectar(destino)
     assert copia.execute("SELECT COUNT(*) FROM ordens_servico").fetchone()[0] == 1
     copia.close()
-
-
-def test_planilha_da_os_mantem_layout(tmp_path, conn, mecanico):
-    """Sem Excel (fora do Windows) o PDF falha, mas a planilha fica salva para conferência."""
-    import openpyxl
-
-    cfg.salvar(conn, {cfg.NOME_OFICINA: "AUTO CENTER EXEMPLO", cfg.ENDERECO_OFICINA: "Rua das Oficinas, 100"})
-    salva = ordens.salvar(conn, nova_os(mecanico.id, data=date(2026, 9, 25), desconto=1000), "finalizada")
-    ok, mensagem = emissao.emitir_os(salva, cfg.dados_oficina(conn), tmp_path)
-    planilha = tmp_path / "2026-09" / f"OS_ABC1D23_{salva.numero}.xlsx"
-    if ok:  # Windows com Excel
-        assert mensagem.endswith(".pdf")
-        return
-    assert planilha.exists()
-    ws = openpyxl.load_workbook(planilha).active
-    assert ws["A1"].value == "ORDEM DE SERVIÇO - AUTO CENTER EXEMPLO"
-    assert ws["A2"].value == "Endereço: Rua das Oficinas, 100"
-    assert ws["B5"].value == salva.numero and ws["F5"].value == "25/09/2026"
-    assert ws["B6"].value == "Marcos"
-    assert (ws["A14"].value, ws["D14"].value, ws["E14"].value) == ("Amortecedor dianteiro", 2, 250.0)
-    assert ws["F18"].value == 10.0  # desconto

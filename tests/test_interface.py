@@ -5,17 +5,11 @@ import time
 
 import pytest
 
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-QtWidgets = pytest.importorskip("PySide6.QtWidgets")
+pytest.importorskip("PySide6.QtWidgets")
 
 from oficina.banco import conectar  # noqa: E402
 from oficina.modelos import Mecanico  # noqa: E402
 from oficina.servicos import comissoes, mecanicos, ordens  # noqa: E402
-
-
-@pytest.fixture(scope="module")
-def app():
-    return QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
 
 
 class Respostas:
@@ -479,3 +473,19 @@ def test_whatsapp_do_cliente_nao_exige_numero_da_loja(app, janela, monkeypatch, 
     assert acoes.enviar_whatsapp(janela, _pdf_falso(tmp_path, "x.pdf"), "OS 1", "Ana", "(61) 98888-7777")
     assert abertos == ["whatsapp://send?phone=5561988887777"]
 
+
+
+def test_finalizar_gera_o_pdf_de_verdade_em_segundo_plano(app, janela):
+    """Sem simular a emissão: desenha a nota com o Qt numa thread e grava o arquivo."""
+    from pathlib import Path
+
+    pagina = janela.pagina_os
+    _adicionar_item(pagina.editor, "Troca de pivô", "mao_de_obra", "1", "120")
+    pagina.mecanico.setCurrentIndex(0)
+    pagina.placa.setText("ABC1D23")
+    janela.respostas.escolha = 3  # "Continuar nesta OS"
+    pagina._salvar(finalizar=True, gerar_pdf=True)
+    _esperar(app, lambda: ordens.carregar(janela.conn, pagina.os_carregada.id).caminho_pdf)
+    caminho = Path(ordens.carregar(janela.conn, pagina.os_carregada.id).caminho_pdf)
+    assert caminho.name == "OS_ABC1D23_1000.pdf" and caminho.read_bytes()[:5] == b"%PDF-"
+    assert pagina.botao_abrir_pdf.isVisibleTo(pagina)

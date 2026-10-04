@@ -1,7 +1,10 @@
+import os
 import sys
 from pathlib import Path
 
 import pytest
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")  # testes sem abrir janelas na tela
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -42,3 +45,23 @@ def nova_os(mecanico_id=None, **campos):
     )
     padrao.update(campos)
     return OrdemServico(**padrao)
+
+
+@pytest.fixture(scope="session")
+def app():
+    """Uma única QApplication para todos os testes que usam Qt.
+
+    No fim da sessão as janelas são destruídas explicitamente e as tarefas em
+    segundo plano são aguardadas. Sem isso, no Windows o Python podia encerrar
+    com erro depois dos testes passarem (o Qt sendo destruído fora de ordem).
+    """
+    QtWidgets = pytest.importorskip("PySide6.QtWidgets")
+    from PySide6.QtCore import QThreadPool
+
+    aplicacao = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+    yield aplicacao
+    QThreadPool.globalInstance().waitForDone(5000)
+    for janela in aplicacao.topLevelWidgets():
+        janela.deleteLater()  # sem close(): as janelas dos testes já foram fechadas
+    aplicacao.processEvents()
+    aplicacao.sendPostedEvents()

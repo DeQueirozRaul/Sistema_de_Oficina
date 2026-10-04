@@ -1,26 +1,24 @@
 """Emissão dos PDFs a partir das OS/orçamentos salvos.
 
-Estas funções não acessam o banco: recebem tudo pronto para poderem rodar em
-segundo plano (a conversão pelo Excel demora alguns segundos).
+Estas funções não acessam o banco: recebem tudo pronto (dados da oficina e,
+se for o caso, a logo) para poderem rodar em segundo plano.
 Os PDFs são organizados em subpastas por mês: OS/2026-09/OS_ABC1D23_1002.pdf
 """
 
-from datetime import datetime
+import re
 from pathlib import Path
 
-from oficina.documentos.nota import gerar_orcamento_e_pdf, gerar_os_e_pdf
-from oficina.modelos import Item, Orcamento, OrdemServico
+from PySide6.QtGui import QImage
+
+from oficina.documentos import nota_pdf
+from oficina.modelos import Orcamento, OrdemServico
+
+DICA_ARQUIVO_ABERTO = "Se o PDF anterior estiver aberto em outro programa, feche-o e tente de novo."
 
 
-def _itens_para_nota(itens: list[Item]) -> list[dict]:
-    return [
-        {
-            "desc": item.descricao,
-            "qtd": int(item.quantidade) if float(item.quantidade).is_integer() else item.quantidade,
-            "unit": item.valor_unitario / 100,
-        }
-        for item in itens
-    ]
+def nome_arquivo(texto) -> str:
+    """Remove caracteres que o Windows não aceita em nome de arquivo."""
+    return re.sub(r'[\\/:*?"<>|]', "", str(texto)).strip()
 
 
 def _pasta_do_mes(pasta_raiz: Path, quando) -> Path:
@@ -29,21 +27,21 @@ def _pasta_do_mes(pasta_raiz: Path, quando) -> Path:
     return pasta
 
 
-def emitir_os(os_: OrdemServico, oficina: dict, pasta_raiz: Path) -> tuple[bool, str]:
+def _gravar(nota: nota_pdf.Nota, caminho: Path) -> tuple[bool, str]:
+    try:
+        nota_pdf.salvar_pdf(nota, caminho)
+    except OSError as erro:
+        return False, f"Não foi possível gravar {caminho}: {erro}. {DICA_ARQUIVO_ABERTO}"
+    return True, str(caminho)
+
+
+def emitir_os(os_: OrdemServico, oficina: dict, pasta_raiz: Path, logo: QImage | None = None) -> tuple[bool, str]:
     """Gera o PDF da OS. Devolve (True, caminho_do_pdf) ou (False, mensagem_de_erro)."""
-    cliente = {"nome": os_.cliente_nome, "documento": os_.cliente_documento, "telefone": os_.cliente_telefone}
-    veiculo = {"modelo": os_.modelo, "placa": os_.placa, "ano": os_.ano, "km": os_.km}
-    return gerar_os_e_pdf(
-        os_.numero, cliente, os_.mecanico_nome, veiculo, _itens_para_nota(os_.itens),
-        os_.desconto / 100, os_.observacoes, str(_pasta_do_mes(pasta_raiz, os_.data)),
-        data_emissao=datetime.combine(os_.data, datetime.min.time()), oficina=oficina,
-    )
+    caminho = _pasta_do_mes(pasta_raiz, os_.data) / f"OS_{nome_arquivo(os_.placa)}_{os_.numero}.pdf"
+    return _gravar(nota_pdf.montar_os(os_, oficina, logo), caminho)
 
 
-def emitir_orcamento(orcamento: Orcamento, oficina: dict, pasta_raiz: Path) -> tuple[bool, str]:
-    veiculo = {"modelo": orcamento.modelo, "placa": orcamento.placa}
-    return gerar_orcamento_e_pdf(
-        orcamento.numero, veiculo, _itens_para_nota(orcamento.itens), orcamento.desconto / 100,
-        orcamento.observacoes, str(_pasta_do_mes(pasta_raiz, orcamento.data)),
-        data_emissao=datetime.combine(orcamento.data, datetime.min.time()), oficina=oficina,
-    )
+def emitir_orcamento(orcamento: Orcamento, oficina: dict, pasta_raiz: Path,
+                     logo: QImage | None = None) -> tuple[bool, str]:
+    caminho = _pasta_do_mes(pasta_raiz, orcamento.data) / f"ORC_{nome_arquivo(orcamento.placa)}_{orcamento.numero}.pdf"
+    return _gravar(nota_pdf.montar_orcamento(orcamento, oficina, logo), caminho)
